@@ -34,10 +34,23 @@ margin: -right:10px;
 .filters>.current{font-weight: bold;}
 </style>
 <script>
-var data={
-	tasks:[],
-	filter:"all"
-};
+var data=null;
+
+window.onload=function(){
+	data=window.localStorage.getItem("data");
+	if(data==null){ // no data
+      data={
+      	tasks:[],
+      	filter:"all"
+      };
+	}else{ // Data exists
+		// Jason:JavaScript Objiect Notation
+	  data=JSON.parse(data);
+	}
+	// Refresh UI
+	refreshUI();
+}
+// handlers
 function createTask(){
 	var textInput=document.getElementById("text-input");
 	var task={
@@ -50,13 +63,54 @@ function createTask(){
 	// Refresh UI
 	refreshUI();
 }
-
+function clickCheckbox(){
+	// this:<input type="checkbox" />
+	var index=this.parentNode.parentNode.index;
+	data.tasks[index].completed=this.checked;
+	//save Data
+	window.localStorage.setItem("data",JSON.stringify(data));
+	// Refresh UI
+	refreshUI();
+}
+//UI
 function refreshUI(){
-    var list=document.getElementById("list")
+    var list=document.getElementById("list");
+    var task;
     list.innerHTML="";
-    for(var i=0;i<data.tasks.length;i++){
-    	list.innerHTML+="<div>"+data.tasks[i].text+"</div>";
+    for(var i=0;i<data.tasks.length; i++){
+    	task=createTaskUI(data.tasks[i],i);
+    	list.appendChild(task);
     }
+}
+function createTaskUI(d,index){
+	var task=document.createElement("div");// <div><div>
+	task.className="task"+(data.completed?" completed":"");
+	task.index=index;
+	// check
+	var check=document.createElement("div");
+	check.className="check";
+	if (data.completed) {
+		check.innerHTML="<input type='checkbox' checked='true' />";                  
+    }else{
+        check.innerHTML="<input type='checkbox' />";                                                                     
+	}
+	check.firstChild.onclick=clickCheckbox;
+
+	//text
+	var text=document.createElement("div");
+	text.className="text";
+	text.textContent=d.text;
+
+	//del
+    var del=document.createElement("div");
+	del.className="del";
+	del.textContent="X";
+
+	//build DOM tree
+    task.appendChild(check);
+    task.appendChild(text);
+    task.appendChild(del);
+    return task;
 }
 </script>
 </head>
@@ -84,6 +138,35 @@ function refreshUI(){
    <span class="filter">Undone</span>
    <span class="filter">Completed</span>
   </div> 
-</div>
+  <div>
+  	<div style="text-align: center;">
+  	 <button onclilck="exportData();">Export</button>
+  	 <a id="download-link"</a>
+  	 <button onclilck="importData();">Export</button>	
+  	 <input id="file-inpuut" type="file" onchange="loadFile(this);" 
+  	   style="position: absolute;top:-99999px" />
+  </div>
+  <script>
+  function loadFile(input){
+	var file=input.files[0];
+	var reader=new FileReader();
+	reader.onload=function(){
+		data=JSON.parse(this.result);
+		// Save Data
+		window.localStorage.setItem("data",JSON.stringify(data));
+		// Refresh UI
+	    refreshUI();
+	};
+	reader.readAsText(file); 
+}
+  function exportData(){
+  	var blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+  	var link=download.getElementById("download-link");
+  	link.download="data.todo";
+  	link.href=URL.createObjectURL(blob);
+  	link.click();
+  }
+
+<script>
 </body>
 </html>
