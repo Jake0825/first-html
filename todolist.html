@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>To Do List</title>
+<style type="text/css">
+.frame{
+width: 320px;margin: 0px auto;margin-top: 50px
+border: :1px solid #000000;
+box-shadow: 0px 0px 5px #888888
+}
+/* input */
+.input{
+padding:10px;
+}	
+/* list */
+.list{padding: 10px;}
+.list>.task{width:100%;}
+.list>.task>.check{
+width: 30px;display: inline-block;vertical-align: middle;
+}
+.list>.task>.text{
+width: 230px;display: inline-block;vertical-align: middle;
+}
+.list>.completed>.text{text-decoration: line-through;}
+.list>.task>.del{
+width: 30px;display: inline-block;vertical-align: middle;
+visibility: hidden;
+}
+.list>.task:hover>.del{visibility: visible;}
+.frame>.filters>.filter{
+margin: -right:10px;
+}
+.filters>.current{font-weight: bold;}
+</style>
+<script>
+var data={
+	tasks:[],
+	filter:"all"
+};
+function createTask(){
+	var textInput=document.getElementById("text-input");
+	var task={
+      completed:false,
+      text:textInput.value
+	};
+	data.tasks.push(task);
+	//save Data
+	window.localStorage.setItem("data",JSON.stringify(data));
+	// Refresh UI
+	refreshUI();
+}
+
+function refreshUI(){
+    var list=document.getElementById("list")
+    list.innerHTML="";
+    for(var i=0;i<data.tasks.length;i++){
+    	list.innerHTML+="<div>"+data.tasks[i].text+"</div>";
+    }
+}
+</script>
+</head>
+<body>
+<div class="frame">
+  <form class="input" onsubmit="createTask();return false;">
+   <input type="text" id="text-input"/>
+   <input type="submit" value="create"> 
+   </form> 	
+  <div class="list" id="list">
+
+   <!-- <div class="task"> 
+     <div class="check"><input type="checkbox"/></div>
+     <div class="text">This is undone task</div>
+     <div class="del">x</div>
+   </div>
+    <div class="task completed"> 
+     <div class="check"><input type="checkbox"/></div>
+     <div class="text">This is completed task</div>
+     <div class="del">x</div>
+   </div> -->
+  </div>
+  <div class="filters">
+   <span class="filter current">All</span>
+   <span class="filter">Undone</span>
+   <span class="filter">Completed</span>
+  </div> 
+</div>
+</body>
+</html>
